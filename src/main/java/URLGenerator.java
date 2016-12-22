@@ -1,6 +1,7 @@
 
 
 import org.json.*;
+
 /**
  * Created by Wojciech Zdzarski on 14.12.2016.
  * This class will generate necessary info urls;
@@ -17,7 +18,7 @@ public class URLGenerator {
     }
 
     public String generateEnvoyInfo(String Name, String Surname){
-        return null;
+        return this.BaseString + ""; // example
     }
 
     public String generateAllEnvoyesInfo(){

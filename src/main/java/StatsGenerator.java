@@ -7,7 +7,14 @@ import org.json.*;
 public class StatsGenerator {
 
     public double countAvgOutgoings(){
-       return 0;
+        try {
+            JSONObject json = new JSONObject(WebApiParser.readUrl(""));
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+
+        return 0;
     }
 
     public String findMostFrequentTraveller(){
