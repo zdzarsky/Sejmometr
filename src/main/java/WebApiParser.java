@@ -15,7 +15,10 @@ import java.net.URLConnection;
 public class WebApiParser {
 
     public static final String ALL_ENV_TAB = "Dataobject";
-    public static final String ENV_NAME = "";
+    public static final String ENV_NAME = "poslowie.imie_pierwsze";
+    public static final String ENV_SURNAME = "poslowie.nazwisko";
+    public static final String DATA = "data";
+    public static final String LINKS_TABLE = "Links";
 
     public static String readUrl(String url) throws Exception {
         URL website = new URL(url);
