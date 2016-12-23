@@ -51,7 +51,7 @@ public class EnvoyInfoTaker {
             self = (String) links.getString("next");
         }
         return null;
-    } // działa
+    }
 
     public String getRepairsOf(int id) {
         return null;
