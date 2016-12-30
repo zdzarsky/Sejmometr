@@ -4,9 +4,10 @@
 public class Main {
     public static void main(String args[]){
         try {
-
+            URLGenerator gen = new URLGenerator(5);
             EnvoyInfoTaker taker = new EnvoyInfoTaker(2);
-            taker.getID("Andrzej", "Duda");
+            String i = taker.getID("Andrzej", "Duda");
+            taker.getRepairsOf(i);
         }
         catch(Exception e){
             e.getMessage();

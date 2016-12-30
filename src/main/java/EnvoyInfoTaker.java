@@ -12,15 +12,19 @@ import java.net.URL;
 public class EnvoyInfoTaker {
 
     private URLGenerator gen;
+    private int outcomes_pointer;
+    private String outcomes_str;
+
 
     public EnvoyInfoTaker(int cadence) {
+        this.outcomes_pointer = 13;
+        this.outcomes_str = Layers.toString(Layers.wydatki);
         this.gen = new URLGenerator(cadence);
     }
 
     public String getID(String Name, String Surname) {
         String link = gen.generateEnvoyInfo(Name, Surname);
         String url = "";
-        String name_and_surname = Name + " " + Surname;
         try {
             url = WebApiParser.readUrl(link);
         } catch (Exception e) {
@@ -29,7 +33,7 @@ public class EnvoyInfoTaker {
         JSONObject all_envoyes = new JSONObject(url);
         JSONObject links = all_envoyes.getJSONObject(WebApiParser.LINKS_TABLE);
         String self = links.getString("self");
-        while(self != null){
+        while (self != null) {
             try {
                 url = WebApiParser.readUrl(self);
             } catch (Exception e) {
@@ -38,12 +42,12 @@ public class EnvoyInfoTaker {
             }
             JSONObject page = new JSONObject(url);
             JSONArray envoyes = page.getJSONArray(WebApiParser.ALL_ENV_TAB);
-            for(int i = 0; i < envoyes.length();i++){
+            for (int i = 0; i < envoyes.length(); i++) {
                 JSONObject single_env = envoyes.getJSONObject(i);
                 JSONObject data = single_env.getJSONObject(WebApiParser.DATA);
-                String curr_name = (String)data.getString(WebApiParser.ENV_NAME);
-                String curr_surname = (String) data.getString(WebApiParser.ENV_SURNAME);
-                if(curr_name.equals(Name) && curr_surname.equals(Surname)){
+                String curr_name = data.getString(WebApiParser.ENV_NAME);
+                String curr_surname = data.getString(WebApiParser.ENV_SURNAME);
+                if (curr_name.equals(Name) && curr_surname.equals(Surname)) {
                     return single_env.getString("id");
                 }
             }
@@ -53,8 +57,22 @@ public class EnvoyInfoTaker {
         return null;
     }
 
-    public String getRepairsOf(int id) {
+    public String getRepairsOf(String id) {
+        String url = gen.generateLayerByID(id, Layers.wydatki);
+        String rawJSON = "";
+        try{
+            rawJSON = WebApiParser.readUrl(url);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+        JSONObject page = new JSONObject(url);
+        System.out.println(page);
+        JSONObject layers = page.getJSONObject("layers");
+        JSONObject outcomes = layers.getJSONObject(this.outcomes_str);
+        System.out.println(outcomes);
         return null;
+
     }
 
 }
