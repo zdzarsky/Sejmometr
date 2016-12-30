@@ -66,13 +66,18 @@ public class EnvoyInfoTaker {
             System.out.println(e.getMessage());
             System.exit(1);
         }
-        JSONObject page = new JSONObject(url);
-        System.out.println(page);
+        JSONObject page = new JSONObject(rawJSON);
         JSONObject layers = page.getJSONObject("layers");
         JSONObject outcomes = layers.getJSONObject(this.outcomes_str);
-        System.out.println(outcomes);
-        return null;
-
+        JSONArray annuals = outcomes.getJSONArray("roczniki");
+        System.out.println(annuals);
+        double acc = 0;
+        for(int i = 0 ; i < outcomes.getInt("liczba_rocznikow"); i++){
+            JSONObject tmp = annuals.getJSONObject(i);
+            JSONArray fields = tmp.getJSONArray("pola");
+            acc += fields.getDouble(this.outcomes_pointer-1);
+        }
+        return Double.toString(acc);
     }
 
 }

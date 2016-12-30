@@ -6,7 +6,7 @@ public class Main {
         try {
             URLGenerator gen = new URLGenerator(5);
             EnvoyInfoTaker taker = new EnvoyInfoTaker(2);
-            String i = taker.getID("Andrzej", "Duda");
+            String i = taker.getID("Andrzej", "Czerwiński");
             taker.getRepairsOf(i);
         }
         catch(Exception e){
