@@ -1,4 +1,3 @@
-import com.sun.deploy.pings.Pings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,24 +21,16 @@ public class EnvoyInfoTaker {
         this.gen = new URLGenerator(cadence);
     }
 
-    public String getID(String Name, String Surname) {
-        String link = gen.generateEnvoyInfo(Name, Surname);
-        String url = "";
-        try {
-            url = WebApiParser.readUrl(link);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+
+    public String findEnvoyeID(String Name, String Surname) throws Exception {
+        String link = gen.generateAllEnvoyesInfo();
+        String url = WebApiParser.readJSON(link);
         JSONObject all_envoyes = new JSONObject(url);
         JSONObject links = all_envoyes.getJSONObject(WebApiParser.LINKS_TABLE);
         String self = links.getString("self");
+        String id = null;
         while (self != null) {
-            try {
-                url = WebApiParser.readUrl(self);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
-            }
+            url = WebApiParser.readJSON(self);
             JSONObject page = new JSONObject(url);
             JSONArray envoyes = page.getJSONArray(WebApiParser.ALL_ENV_TAB);
             for (int i = 0; i < envoyes.length(); i++) {
@@ -48,29 +39,23 @@ public class EnvoyInfoTaker {
                 String curr_name = data.getString(WebApiParser.ENV_NAME);
                 String curr_surname = data.getString(WebApiParser.ENV_SURNAME);
                 if (curr_name.equals(Name) && curr_surname.equals(Surname)) {
-                    return single_env.getString("id");
+                    id = single_env.getString("id");
                 }
             }
             links = page.getJSONObject(WebApiParser.LINKS_TABLE);
-            self = (String) links.getString("next");
+            self = links.has("next") ? links.getString("next") : null;
         }
-        return null;
+        if(id == null) throw new Exception("Envoy not found");
+        return id ;
     }
 
-    public String getRepairsOf(String id) {
+    public String getRepairsOf(String id) throws Exception {
         String url = gen.generateLayerByID(id, Layers.wydatki);
-        String rawJSON = "";
-        try{
-            rawJSON = WebApiParser.readUrl(url);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
+        String rawJSON = WebApiParser.readJSON(url);
         JSONObject page = new JSONObject(rawJSON);
         JSONObject layers = page.getJSONObject("layers");
         JSONObject outcomes = layers.getJSONObject(this.outcomes_str);
         JSONArray annuals = outcomes.getJSONArray("roczniki");
-        System.out.println(annuals);
         double acc = 0;
         for(int i = 0 ; i < outcomes.getInt("liczba_rocznikow"); i++){
             JSONObject tmp = annuals.getJSONObject(i);

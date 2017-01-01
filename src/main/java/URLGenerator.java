@@ -23,14 +23,11 @@ public class URLGenerator {
         this.cadence = cadence;
     }
 
-    public String generateEnvoyInfo(String Name, String Surname){
-        return this.BaseString + ""; // example
-    }
     public String generateLayerByID(String id, Layers layer){
         return this.BaseString + id + this.format + this.layer_init + Layers.toString(layer) + this.cadence_string + this.cadence;
     }
     public String generateAllEnvoyesInfo(){
-        return null;
+        return this.BaseString;
     }
 
     public String generateTravelsInfo(){

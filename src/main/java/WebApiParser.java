@@ -36,6 +36,16 @@ public class WebApiParser {
 
         return response.toString();
     }
+    public static String readJSON(String link) throws Exception{
+        String json = "";
+        try {
+            json = WebApiParser.readUrl(link);
+        } catch(Exception e){
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
+        return json;
+    }
 
 
 }
