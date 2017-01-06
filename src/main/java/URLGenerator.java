@@ -5,7 +5,6 @@ import org.json.*;
 /**
  * Created by Wojciech Zdzarski on 14.12.2016.
  * This class will generate necessary info urls;
- * TODO - Differencing Cadences
  */
 
 public class URLGenerator {
@@ -22,17 +21,20 @@ public class URLGenerator {
         this.cadence_string = "&kadencja=";
         this.cadence = cadence;
     }
-
-    public String generateLayerByID(String id, Layers layer){
-        return this.BaseString + id + this.format + this.layer_init + Layers.toString(layer) + this.cadence_string + this.cadence;
+    public String generateLayersByID(String id){
+        return this.BaseString +
+                id + this.format +
+                this.layer_init +
+                Layers.wydatki.toString() +
+                "&" +
+                this.layer_init +
+                Layers.wyjazdy.toString() +
+                this.cadence_string + this.cadence;
     }
     public String generateAllEnvoyesInfo(){
         return this.BaseString;
     }
 
-    public String generateTravelsInfo(){
-        return null;
-    }
 
 
 }

@@ -1,101 +1,96 @@
 import org.json.*;
 
-import java.net.URL;
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Wojciech Zdzarski on 14.12.2016.
  * This class will parse Jsons to get necessary stats.
  */
 public class StatsGenerator {
-    private URLGenerator gen;
+    private List<Envoy> envoys;
 
-    StatsGenerator(int cadence) {
-        this.gen = new URLGenerator(cadence);
-
+    StatsGenerator(List<Envoy> envoys) {
+       this.envoys = envoys;
     }
 
-    public double countAvgOutgoings() throws Exception { // średnie roczne wydatki
-        System.out.println("Counting average outgoings of all envoyes (may take a while) ...");
-        String [] tab = getTabOfIds();
-        double [] out = new double[tab.length];
-        double acc = 0;
-        int current_env = 1;
-        for(int i=0;i<tab.length;i++) {
-            System.out.println("Analizowanie posła " + current_env++ + " z " + tab.length );
-            JSONObject page = new JSONObject(WebApiParser.readJSON(gen.generateLayerByID(tab[i], Layers.wydatki)));
-            JSONObject layers = page.getJSONObject("layers");
-            JSONObject outcomes = layers.getJSONObject("wydatki");
-            JSONArray annuals = outcomes.getJSONArray("roczniki");
-            int an_len = outcomes.getInt("liczba_rocznikow");
-            for (int j = 0; j < an_len; j++) {
-                JSONObject tmp = annuals.getJSONObject(j);
-                JSONArray fields = tmp.getJSONArray("pola");
-                for (int k = 0; k < fields.length(); k++) {
-                    acc += fields.getDouble(k);
-                }
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.countAvgOutGoings());
+        sb.append(this.findMostFrequentTraveller());
+        sb.append(this.findMostExpensiveJourney());
+        sb.append(this.findLongestTripper());
+        sb.append(this.getListOfItalyTravellers());
+        return sb.toString();
+    }
 
+    private String countAvgOutGoings(){
+        double denominator = (double) this.envoys.size();
+        double sum = 0.0;
+        for(Envoy e : envoys){
+            sum+=e.getSumOfOutcomes();
+        }
+        return "Średnie wydatki wszystkich posłów: " + Double.toString(sum / denominator) + " złotych.\n";
+    }
+
+    private String findMostFrequentTraveller() {
+        String winner_name = "";
+        String winner_surname = "";
+        int travels_amount = 0;
+        for(Envoy e: envoys){
+            int tmp_amount = e.getAmountOfTravels();
+            if(tmp_amount > travels_amount){
+                travels_amount = tmp_amount;
+                winner_name = e.getName();
+                winner_surname = e.getSurname();
             }
-            acc /= an_len;
-            out[i] = acc;
-            acc = 0;
         }
+        return "Najwiecej podróży wykonał: " + winner_name + " " + winner_surname + " z ilością " + Integer.toString(travels_amount) + "razy \n";
+    }
 
-        for(double x:out){
-            acc+=x;
-        }
-        return (double)(acc/out.length);
-    } // zoptymalizować
-
-    private String[] getTabOfIds() {
-        System.out.println("Processing table of all ids");
-        String url = null;
-        try {
-            url = WebApiParser.readUrl(this.gen.generateAllEnvoyesInfo());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
-
-        JSONObject all_envoyes = new JSONObject(url);
-        int size = all_envoyes.getInt("Count");
-        String[] res = new String[size];
-        int res_position = 0;
-        JSONObject links = all_envoyes.getJSONObject(WebApiParser.LINKS_TABLE);
-
-        String self = links.getString("self");
-        String last = links.getString("last");
-
-        while(self != null){
-            try {
-                url = WebApiParser.readUrl(self);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.exit(1);
+    private String findLongestTripper() {
+        String winner_name = "";
+        String winner_surname = "";
+        int travels_length = 0;
+        for(Envoy e: envoys){
+            int tmp_amount = e.getLongestVoyage();
+            if(tmp_amount > travels_length){
+                travels_length = tmp_amount;
+                winner_name = e.getName();
+                winner_surname = e.getSurname();
             }
-            JSONObject page = new JSONObject(url);
-            JSONArray envoyes = page.getJSONArray(WebApiParser.ALL_ENV_TAB);
-            for (int i = 0; i < envoyes.length(); i++) {
-                JSONObject single_env = envoyes.getJSONObject(i);
-                String id = single_env.getString("id");
-                res[res_position] = id;
-                res_position++;
-            }
-            links = page.getJSONObject(WebApiParser.LINKS_TABLE);
-            self = links.has("next") ? links.getString("next") : null;
         }
-        return res;
+        return "Najdłuższą podróż odbył " + winner_name + " " + winner_surname + " o długości " + Integer.toString(travels_length) + " dni.\n";
     }
 
-    public String findMostFrequentTraveller() {
-        return null;
+    private String findMostExpensiveJourney() {
+        String winner_name = "";
+        String winner_surname = "";
+        double travels_cost = 0;
+        for(Envoy e: envoys){
+            double tmp_amount = e.getMostExpensiveJourney();
+            if(tmp_amount > travels_cost){
+                travels_cost = tmp_amount;
+                winner_name = e.getName();
+                winner_surname = e.getSurname();
+            }
+        }
+        return "Najdroższą podróż odbył " + winner_name + " " + winner_surname + " o sumarycznym koszcie " + Double.toString(travels_cost) + " złotych.";
     }
 
-    public String findMostExpensiveJourney() {
-        return null;
+    private String getListOfItalyTravellers() {
+        StringBuilder sb = new StringBuilder();
+        int formatter = 0;
+        for(Envoy e: envoys){
+            if(e.isItalyTraveller()){
+                sb.append(e.getName()).append(" ").append(e.getSurname()).append(",");
+            }
+            if(formatter%10 == 0) sb.append("\n");
+        }
+        sb.deleteCharAt(sb.capacity()-1);
+        sb.append(".");
+        return sb.toString() + "\n";
     }
 
-    public String[] getListOfItalyTravellers() {
-        return null;
-    }
 }

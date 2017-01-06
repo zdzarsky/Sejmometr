@@ -1,16 +1,15 @@
-
-
+import java.util.Arrays;
 
 public class Main {
     public static void main(String args[]){
         try {
-            //URLGenerator gen = new URLGenerator(5);
-            //EnvoyInfoTaker taker = new EnvoyInfoTaker(2);
-            //String i = taker.findEnvoyeID("Piotr", "Serafin"); // throw Exception
-            //taker.getRepairsOf(i);
-            StatsGenerator stats = new StatsGenerator(8); // zostawić kadencje tylko w generatorze
-            System.out.println(stats.countAvgOutgoings());
-
+            URLGenerator generator = new URLGenerator(8);
+//            System.out.println(generator.generateLayersByID("77"));
+            //StatsGenerator stats = new StatsGenerator(generator); // zostawić kadencje tylko w generatorze
+            EnvoyInfoTaker taker = new EnvoyInfoTaker(generator);
+            taker.fillEnvoyList();
+            StatsGenerator gen = new StatsGenerator(taker.getEnvoyList());
+            System.out.println(gen);
         }
         catch(Exception e){
             System.out.println(e.getMessage());
