@@ -9,14 +9,20 @@ import java.util.List;
  */
 public class StatsGenerator {
     private List<Envoy> envoys;
+    private String name;
+    private String surname;
 
-    StatsGenerator(List<Envoy> envoys) {
+    StatsGenerator(List<Envoy> envoys, String name , String surname) {
        this.envoys = envoys;
+        this.name = name;
+        this.surname = surname;
     }
 
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
+        sb.append("\n ***************** STATYSTYKA ************* \n");
+        sb.append(this.getInfoOf(this.name, this.surname));
         sb.append(this.countAvgOutGoings());
         sb.append(this.findMostFrequentTraveller());
         sb.append(this.findMostExpensiveJourney());
@@ -25,13 +31,25 @@ public class StatsGenerator {
         return sb.toString();
     }
 
+    private String getInfoOf(String name, String surname) {
+        Envoy x = null;
+        try{
+            x = getEnvoyByName(name,surname);
+        } catch (Exception e) {
+            return e.getMessage() + "\n";
+        }
+        return "Poseł " + name + " " + surname + " wydał " + String.format("%.2f", x.getSumOfOutcomes()) + " złotych.\n" +
+                "Poseł " + name + " " + surname + " wydał " + String.format("%.2f",x.getRepairsOf()) + " złotych na remonty biura poselskiego.\n";
+    }
+
     private String countAvgOutGoings(){
-        double denominator = (double) this.envoys.size();
-        double sum = 0.0;
+        double denominator = (float)this.envoys.size();
+        double sum = 0;
         for(Envoy e : envoys){
             sum+=e.getSumOfOutcomes();
         }
-        return "Średnie wydatki wszystkich posłów: " + Double.toString(sum / denominator) + " złotych.\n";
+        double score = sum / denominator;
+        return "Średnie wydatki wszystkich posłów: " + String.format("%.2f", score ) + " złotych.\n";
     }
 
     private String findMostFrequentTraveller() {
@@ -46,7 +64,7 @@ public class StatsGenerator {
                 winner_surname = e.getSurname();
             }
         }
-        return "Najwiecej podróży wykonał: " + winner_name + " " + winner_surname + " z ilością " + Integer.toString(travels_amount) + "razy \n";
+        return "Najwiecej podróży wykonał " + winner_name + " " + winner_surname + " z ilością " + Integer.toString(travels_amount) + " razy \n";
     }
 
     private String findLongestTripper() {
@@ -76,21 +94,31 @@ public class StatsGenerator {
                 winner_surname = e.getSurname();
             }
         }
-        return "Najdroższą podróż odbył " + winner_name + " " + winner_surname + " o sumarycznym koszcie " + Double.toString(travels_cost) + " złotych.";
+        return "Najdroższą podróż odbył " + winner_name + " " + winner_surname + " o sumarycznym koszcie " + String.format("%.2f", travels_cost) + " złotych. \n";
     }
 
     private String getListOfItalyTravellers() {
         StringBuilder sb = new StringBuilder();
-        int formatter = 0;
+        int formatter = 1;
         for(Envoy e: envoys){
             if(e.isItalyTraveller()){
                 sb.append(e.getName()).append(" ").append(e.getSurname()).append(",");
+                formatter ++;
+                if(formatter%5 == 0) sb.append("\n");
             }
-            if(formatter%10 == 0) sb.append("\n");
+
         }
-        sb.deleteCharAt(sb.capacity()-1);
+        sb.deleteCharAt(sb.length()-1);
         sb.append(".");
-        return sb.toString() + "\n";
+        return "Posłowie którzy odwiedzili włochy to : " + sb.toString() + "\n";
     }
 
+    public Envoy getEnvoyByName(String Name, String Surname) throws Exception {
+
+        for (Envoy e : this.envoys) {
+            if (e.getName().equals(Name) && e.getSurname().equals(Surname))
+                return e;
+        }
+        throw new Exception("Poseł o podanym imieniu i nazwisku nie istnieje");
+    }
 }

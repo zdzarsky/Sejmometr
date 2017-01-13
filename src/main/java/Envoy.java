@@ -66,4 +66,8 @@ public class Envoy {
     public int getLongestVoyage() {
         return longestVoyage;
     }
+
+    public double getRepairsOf() {
+        return RepairsOf;
+    }
 }

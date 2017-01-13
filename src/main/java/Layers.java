@@ -5,6 +5,6 @@
  * Layers distinguishable by API
  */
 
-enum Layers { // celowy dostęp pakietowy :)
+public enum Layers {
     krs, biura, wyjazdy, wydatki;
 }
